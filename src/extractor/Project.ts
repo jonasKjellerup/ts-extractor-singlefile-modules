@@ -92,14 +92,23 @@ export class Project {
     }
 
     getOrCreateModule(source: string): Module {
-        const { dir } = path.parse(source);
-        if (this.extractor.moduleCache[dir]) return this.extractor.moduleCache[dir];
+        const { dir, base, name } = path.parse(source);
+
+        if (this.extractor.moduleCache[source])
+            return this.extractor.moduleCache[source];
+
         let paths = dir.split("/");
         paths = paths.slice(paths.indexOf(this.baseDir) + 1);
-        if (!paths.length) {
-            this.extractor.moduleCache[dir] = this.module;
+
+        if (name != 'index') {
+            paths.push(name);
+        }
+
+        if (paths[paths.length-1] === base) {
+            this.extractor.moduleCache[source] = this.module;
             return this.module;
         }
+
         let lastModule = this.module;
         const newPath = [];
         const skipped: Array<string> = [];
